@@ -18,7 +18,7 @@ import Foundation
 
 /// Extend Redis by adding the List operations
 extension Redis {
-    
+
     //
     //  MARK: List API functions
     //
@@ -56,6 +56,28 @@ extension Redis {
     ///                      entry is the value of that element.
     ///                      NSError will be non-nil if an error occurred.
     public func brpop(_ keys: String..., timeout: TimeInterval, callback: ([RedisString?]?, NSError?) -> Void) {
+
+        var command = ["BRPOP"]
+        for key in keys {
+            command.append(key)
+        }
+        command.append(String(Int(timeout)))
+        issueCommandInArray(command) {(response: RedisResponse) in
+            self.redisStringArrayResponseHandler(response, callback: callback)
+        }
+    }
+
+    /// Retrieve an element from the end of one of many lists, potentially blocking until
+    /// one of the lists has an element
+    ///
+    /// - Parameter keys: The keys of the lists to check for an element.
+    /// - Parameter timeout: The amount of time to wait or zero to wait forever.
+    /// - Parameter callback: The callback function, when a time out didn't occur, the
+    ///                      Array<RedisString> will contain two entries, the first one
+    ///                      is the key of the list that had an element and the second
+    ///                      entry is the value of that element.
+    ///                      NSError will be non-nil if an error occurred.
+    public func brpop(_ keys: [String], timeout: TimeInterval, callback: ([RedisString?]?, NSError?) -> Void) {
 
         var command = ["BRPOP"]
         for key in keys {
